@@ -1,0 +1,30 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS-specific
+.DS_Store
+
+# VS Code settings
+.vscode/
+
+# Coverage & build
+coverage/
+dist/
+build/
+
+# Optional: SQLite/Sequelize history
+*.sqlite
+*.sqlite3
+*.db
+
+# Others
+.env.local
+.env.*.local
