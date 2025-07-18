@@ -1,3 +1,6 @@
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');  // Import your sequelize instance
+
 const User = sequelize.define('users', {
   name: { type: DataTypes.STRING, allowNull: true },
   class: { type: DataTypes.INTEGER, allowNull: true },
@@ -10,6 +13,8 @@ const User = sequelize.define('users', {
     allowNull: false
   }
 }, {
-  timestamps: true,       // Automatically adds createdAt & updatedAt
-  underscored: true       // Maps to created_at, updated_at if you want snake_case
+  timestamps: true,       // Adds createdAt & updatedAt
+  underscored: true       // Maps to created_at, updated_at
 });
+
+module.exports = User;
