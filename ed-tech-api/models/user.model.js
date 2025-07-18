@@ -1,7 +1,3 @@
-// models/user.model.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-
 const User = sequelize.define('users', {
   name: { type: DataTypes.STRING, allowNull: true },
   class: { type: DataTypes.INTEGER, allowNull: true },
@@ -13,6 +9,7 @@ const User = sequelize.define('users', {
     type: DataTypes.ENUM('STUDENT', 'TEACHER', 'ADMIN'),
     allowNull: false
   }
+}, {
+  timestamps: true,       // Automatically adds createdAt & updatedAt
+  underscored: true       // Maps to created_at, updated_at if you want snake_case
 });
-
-module.exports = User;
