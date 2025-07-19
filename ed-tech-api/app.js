@@ -7,9 +7,9 @@ require('dotenv').config();
 
 const app = express();
 
-// ✅ Allow cross-origin requests with credentials
+// ✅ Allow cross-origin requests with credentials (Development mode - allow all origins)
 app.use(cors({
-  origin: 'http://localhost:3000', // replace with your React frontend URL
+  origin: true, // Allow all origins for development
   credentials: true
 }));
 
