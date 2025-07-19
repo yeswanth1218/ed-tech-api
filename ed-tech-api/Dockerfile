@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -25,4 +25,4 @@ USER nodeuser
 EXPOSE 9000
 
 # Define the command to run the application
-CMD ["npm", "start"]
+CMD ["node", "app.js"]
