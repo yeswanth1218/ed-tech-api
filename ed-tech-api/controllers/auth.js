@@ -1,5 +1,5 @@
-const { registerSchema, loginSchema } = require('../validations/auth.validation');
-const { register, login } = require('../services/auth.service');
+const { registerSchema, loginSchema } = require('../validations/auth');
+const { register, login } = require('../services/auth');
 
 const userRegistration = async (req, res) => {
   const { error } = registerSchema.validate(req.body);
@@ -17,6 +17,8 @@ const userRegistration = async (req, res) => {
 };
 
 const userLogin = async (req, res) => {
+  console.log(`>>>>req.body${JSON.stringify(req.body)}`)
+
   const { error } = loginSchema.validate(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
 

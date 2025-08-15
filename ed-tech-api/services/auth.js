@@ -29,7 +29,7 @@ const login = async (username, password, res) => {
 };
 
 const register = async (username, password, role) => {
-  const existingUser = await User.findOne({ where: { username } });
+  const existingUser = await User.findOne({ where: { username ,} });
   if (existingUser) throw new Error('Username already exists');
 
   const hashedPassword = await bcrypt.hash(password, 10);

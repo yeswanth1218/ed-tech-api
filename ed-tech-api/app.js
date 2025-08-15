@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors'); // ✅ Add this
 const cookieParser = require('cookie-parser');
 const { initDb } = require('./models');
-const authRoutes = require('./routes/auth.route');
+const indexRouter = require('./routes/index');
 require('dotenv').config();
 
 const app = express();
@@ -16,7 +16,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/api', authRoutes);
+app.use('/api', indexRouter);
 
 initDb();
 

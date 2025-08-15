@@ -1,15 +1,27 @@
 const sequelize = require('../config/db');
-const User = require('./user.model');
+const User = require('./users');
+const ExamName = require('./exam_name');
+const Ruberics  = require('./ruberics');
+const Classes  = require('./classes');
+const Sections = require('./sections');
+const ExamDetails = require('./exam_details');
+const QuestionPapers = require('./question_paper');
+
+
+
 
 const initDb = async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connected!');
-    await sequelize.sync({ alter: true }); // Auto-create table
-    console.log('Tables synced');
+
+    // Automatically update tables based on model changes
+    await sequelize.sync({ alter: true }); 
+    console.log('Tables synced (auto-updated)');
+    
   } catch (error) {
     console.error('Database error:', error);
   }
 };
 
-module.exports = { initDb, User };
+module.exports = { initDb, User, ExamName,Ruberics,Classes,Sections,ExamDetails,QuestionPapers };
