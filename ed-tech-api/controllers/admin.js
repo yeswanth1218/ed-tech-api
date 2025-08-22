@@ -1,7 +1,7 @@
 
 
-const { examNameSchema ,rubericsNameSchema,createExamSchema} = require('../validations/admin');
-const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails}= require('../services/admin')
+const { examNameSchema ,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema} = require('../validations/admin');
+const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers}= require('../services/admin')
 
 const addExam = async (req, res) => {
   const { error } = examNameSchema.validate(req.body);
@@ -113,6 +113,40 @@ const getExamCode = async (req, res) => {
   }
 };
 
+const getScheduledExams = async (req, res) => {
+  try {
+    const examId=req.query.exam_id
+    const examDetails = await getScheduledExamsDetails(examId);
+    res.status(200).json({ message: 'Scheduled Exam Fetched successfully', data: examDetails });
+  } catch (err) {
+    res.status(400).json({ error: err.message }); // 400 so Postman shows error clearly
+  }
+};
+
+const getScheduledQuestionPapers = async (req, res) => {
+  try {
+    const examDetailId=req.query.exam_detail_id
+    const examDetails = await getScheduledExamPapers(examDetailId);
+    res.status(200).json({ message: 'Scheduled Question Paper Fetched successfully', data: examDetails });
+  } catch (err) {
+    res.status(400).json({ error: err.message }); // 400 so Postman shows error clearly
+  }
+};
+
+const updateQuestionPaper = async (req, res) => {
+  const { error } = questionPaperUpdateSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  try {
+  console.log(`>>>>req.body${JSON.stringify(req.body)}`)
+
+    const questionDetails = await updateQuestionPapers(req.body);
+
+    res.status(200).json({ message: 'Question Paper Updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 
 
@@ -126,4 +160,8 @@ const getExamCode = async (req, res) => {
 
 
 
-module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode};
+
+
+
+
+module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper};

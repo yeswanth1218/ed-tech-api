@@ -29,5 +29,15 @@ const createExamSchema = Joi.object({
   ).required()
 });
 
+const questionPaperUpdateSchema = Joi.object({
+  id: Joi.number().required(),
+  question_number: Joi.number().optional(),
+  question: Joi.string().optional(),
+  answer: Joi.string().optional(),
+  marks: Joi.number().optional(),
+  question_type: Joi.string().optional(),
+  ruberics: Joi.string().optional()
+});
 
-module.exports = { examNameSchema,rubericsNameSchema,createExamSchema };
+
+module.exports = { examNameSchema,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema };

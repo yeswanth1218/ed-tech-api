@@ -144,6 +144,43 @@ const getExamCodeDetails = async () => {
   return  await ExamDetails.findAll({})
 };
 
+const getScheduledExamsDetails = async (examId) => {
+  const examScheduledDetails = await sequelize.query(
+    `
+    SELECT 
+      e.exam_name,
+      e.exam_id,
+      e.class,
+      e.exam_date,
+      e.subject,
+      e.exam_code
+    FROM exam_details e 
+    WHERE e.status = :status 
+      AND e.exam_id = :examId
+    `,
+    {
+      replacements: {
+        status: 1,
+        examId: examId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
+
+  return examScheduledDetails;
+};
+
+const getScheduledExamPapers = async (examDetailId) => {
+  return  await QuestionPapers.findAll({where:{exam_detail_id:examDetailId,status:1}})
+};
+
+const updateQuestionPapers = async (data) => {
+  const questionPaper= await QuestionPapers.findOne({where:{id:data.id}})
+  if(!questionPaper){
+    throw new Error('Invalid Question');
+  }
+  await QuestionPapers.update({question_number:data.question_number,question:data.question,answer:data.answer,marks:data.marks,question_type:data.question_type,ruberics:data.ruberics},{where:{id:data.id}})
+};
 
 
 
@@ -154,4 +191,4 @@ const getExamCodeDetails = async () => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers };
