@@ -6,6 +6,9 @@ const Classes  = require('./classes');
 const Sections = require('./sections');
 const ExamDetails = require('./exam_details');
 const QuestionPapers = require('./question_paper');
+const Evaluations = require('./evaluations');
+
+
 
 
 
@@ -24,4 +27,4 @@ const initDb = async () => {
   }
 };
 
-module.exports = { initDb, User, ExamName,Ruberics,Classes,Sections,ExamDetails,QuestionPapers };
+module.exports = { initDb, User, ExamName,Ruberics,Classes,Sections,ExamDetails,QuestionPapers,Evaluations };
