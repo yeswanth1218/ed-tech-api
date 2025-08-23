@@ -7,27 +7,19 @@ const ExamDetails = sequelize.define('ExamDetails', {
     autoIncrement: true,
     primaryKey: true
   },
-  exam_name: {
+  examination_code: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  exam_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  class_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
   class: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.INTEGER,
     allowNull: false
   },
   exam_date: {
     type: DataTypes.STRING(50),
     allowNull: false
   },
-  subject: {
+  subject_code: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
@@ -40,7 +32,7 @@ const ExamDetails = sequelize.define('ExamDetails', {
     allowNull: false,
     defaultValue: 1
   },
-  exam_code: {
+  golden_code: {
     type: DataTypes.STRING(255),
     allowNull: false,
     unique: true

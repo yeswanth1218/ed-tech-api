@@ -4,11 +4,8 @@ const sequelize = require('../config/db');
 const Classes = sequelize.define('classes', {
   class: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  section: {
-    type: DataTypes.STRING(100),
-    allowNull: true
+    allowNull: false,
+    unique:true
   },
   status: {
     type: DataTypes.SMALLINT, // PostgreSQL: SMALLINT

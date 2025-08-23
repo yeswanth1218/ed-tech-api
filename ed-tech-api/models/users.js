@@ -10,10 +10,6 @@ const User = sequelize.define('users', {
     type: DataTypes.INTEGER,
     allowNull: true
   },
-  section: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
   mobile: {
     type: DataTypes.STRING,
     allowNull: true

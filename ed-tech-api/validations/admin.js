@@ -10,12 +10,10 @@ const rubericsNameSchema = Joi.object({
 
 
 const createExamSchema = Joi.object({
-  exam_name: Joi.string().required(),
-  exam_id: Joi.number().required(),
-  class_id: Joi.number().required(),
-  class: Joi.string().required(),
+  examination_code: Joi.string().required(),
+  class: Joi.number().required(),
   exam_date: Joi.string().required(),
-  subject: Joi.string().required(),
+  subject_code: Joi.string().required(),
   evaluator_id: Joi.number().required(),
   question_details: Joi.array().items(
     Joi.object({

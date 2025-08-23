@@ -34,6 +34,10 @@ const QuestionPapers = sequelize.define('question_papers', {
       isIn: [['OBJECTIVE', 'SUBJECTIVE', 'short_answer', 'essay', 'calculation']]
     }
   },
+  golden_code: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
   ruberics: {
     type: DataTypes.STRING,
     allowNull: true

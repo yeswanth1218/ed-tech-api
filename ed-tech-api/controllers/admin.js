@@ -1,7 +1,7 @@
 
 
 const { examNameSchema ,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema} = require('../validations/admin');
-const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers}= require('../services/admin')
+const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects}= require('../services/admin')
 
 const addExam = async (req, res) => {
   const { error } = examNameSchema.validate(req.body);
@@ -25,6 +25,20 @@ const getExam = async (req, res) => {
     const data = await examList();
 
     res.status(200).json({ message: 'Exam List Fetched successfully', data: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+const getSubjects = async (req, res) => {
+  try {
+  console.log(`>>>>req.body${JSON.stringify(req.body)}`)
+
+    const data = await getAllSubjects();
+
+    res.status(200).json({ message: 'Subject List Fetched successfully', data: data });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -88,12 +102,12 @@ const createExamDetails = async (req, res) => {
 
 const getStudentByClass = async (req, res) => {
   try {
-    const id = req.params.id;
-    if (!id) {
-      return res.status(400).json({ error: "Class ID Not found" });
+    const classNumber = req.query.class;
+    if (!classNumber) {
+      return res.status(400).json({ error: "classNumber Not found" });
     }
 
-    const data = await studentListByClass(id);
+    const data = await studentListByClass(classNumber);
 
     res.status(200).json({ 
       message: 'Student Details Fetched successfully', 
@@ -115,8 +129,8 @@ const getExamCode = async (req, res) => {
 
 const getScheduledExams = async (req, res) => {
   try {
-    const examId=req.query.exam_id
-    const examDetails = await getScheduledExamsDetails(examId);
+    const examinationCode=req.query.examination_code
+    const examDetails = await getScheduledExamsDetails(examinationCode);
     res.status(200).json({ message: 'Scheduled Exam Fetched successfully', data: examDetails });
   } catch (err) {
     res.status(400).json({ error: err.message }); // 400 so Postman shows error clearly
@@ -164,4 +178,4 @@ const updateQuestionPaper = async (req, res) => {
 
 
 
-module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper};
+module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects};

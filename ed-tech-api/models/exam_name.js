@@ -11,7 +11,12 @@ const ExamName = sequelize.define('exam_name', {
     type: DataTypes.SMALLINT,   // MySQL: TINYINT, PostgreSQL will map to SMALLINT
     allowNull: false,
     defaultValue: 1
-  }
+  },
+  examination_code: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    unique:true
+  },
 }, {
     tableName: 'exam_name',
     timestamps: true,        // Sequelize will manage created_at & updated_at

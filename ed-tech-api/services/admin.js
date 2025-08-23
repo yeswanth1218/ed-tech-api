@@ -1,4 +1,4 @@
-const { ExamName,Ruberics,Classes ,ExamDetails,QuestionPapers,User} = require('../models');
+const { ExamName,Ruberics,Classes ,ExamDetails,QuestionPapers,User,Subject} = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sequelize = require('../config/db');
@@ -8,12 +8,45 @@ const moment =require('moment')
 require('dotenv').config();
 
 const createExam = async (data) => {
-    await ExamName.create({name:data.name})
+  // Convert name to uppercase
+  const upperName = data.name.toUpperCase();
+
+  // Take first 2 letters of name
+  const codePrefix = upperName.slice(0, 2);
+
+  // Format date as YY-MM-DD
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const datePart = `${yy}-${mm}-${dd}`;
+
+  const examinationCode = `${codePrefix}-${datePart}`;
+
+  await ExamName.create({
+    name: upperName,
+    examination_code: examinationCode
+  });
 };
 
+
 const examList = async () => {
-   return  await ExamName.findAll({where:{status:1}})
-};
+  return await sequelize.query(
+    `
+    SELECT 
+    id,
+        CONCAT(name, ' (', examination_code, ')')  as name,
+        examination_code,
+      created_at AS "createdAt",
+      updated_at AS "updatedAt"
+    FROM exam_name
+    WHERE status = :status
+    `,
+    {
+      replacements: { status: 1 }, // parameterized
+      type: QueryTypes.SELECT
+    }
+  );};
 
 const createRuberics = async (data) => {
     await Ruberics.create({name:data.name})
@@ -23,13 +56,29 @@ const rubericsList = async () => {
    return  await Ruberics.findAll({where:{status:1}})
 };
 
+const getAllSubjects = async () => {
+  return await sequelize.query(
+    `
+    SELECT 
+      id,
+        CONCAT(name, ' (', subject_code, ')') AS name,
+        subject_code
+    FROM subjects
+    WHERE status = :status
+    `,
+    {
+      replacements: { status: 1 }, // parameterized
+      type: QueryTypes.SELECT
+    }
+  );};
+
+
 const classesList = async () => {
     return await sequelize.query(
       `
       SELECT 
         id,
-        CONCAT(class, '-', section) AS class_section,
-        status,
+        class,
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM classes
@@ -46,27 +95,30 @@ const registerExam = async (data) => {
     const transaction = await sequelize.transaction();
     try {
       // Validate Exam Name
-      const examName = await ExamName.findOne({ where: { id: Number(data.exam_id) } });
+      const examName = await ExamName.findOne({ where: { examination_code:data.examination_code } });
       if (!examName) {
-        throw new Error('Invalid Exam Name');
+        throw new Error('Invalid Examination Code');
       }
   
       // Validate Class
-      const className = await Classes.findOne({ where: { id: Number(data.class_id) } });
+      const className = await Classes.findOne({ where: { class: Number(data.class) } });
       if (!className) {
-        throw new Error('Invalid Class Name');
+        throw new Error('Invalid Class');
+      }
+
+      const subjectName = await Subject.findOne({ where: { subject_code: (data.subject_code) } });
+      if (!subjectName) {
+        throw new Error('Invalid Subject Code');
       }
   
       // Check if exam already scheduled
       const isExamAlreadyScheduled = await ExamDetails.findOne({
         where: {
-          exam_id: Number(data.exam_id),
-          class_id: Number(data.class_id),
+          examination_code: (data.examination_code),
+          class: Number(data.class),
           exam_date: data.exam_date,
           status: 1,
-          [Op.and]: [
-            where(fn('UPPER', col('subject')), data.subject.toUpperCase())
-          ]
+          subject_code:data.subject_code
         },
         transaction
       });
@@ -76,12 +128,12 @@ const registerExam = async (data) => {
       }
   
       // 🔹 Generate professional exam_code
-      const formattedDate = moment(data.exam_date).format('YYYYMMDD');
-      const subjectCode = data.subject.toUpperCase().replace(/\s+/g, '_');
-      const classCode = String(className.class).toUpperCase().replace(/\s+/g, '_');
-      const sectionCode = String(className.section).toUpperCase().replace(/\s+/g, '_');
+      // const formattedDate = moment(data.exam_date).format('YYYYMMDD');
+      // const subjectCode = data.subject.toUpperCase().replace(/\s+/g, '_');
+      // const classCode = String(className.class).toUpperCase().replace(/\s+/g, '_');
+      // const sectionCode = String(className.section).toUpperCase().replace(/\s+/g, '_');
   
-      data.exam_code = `${subjectCode}_${formattedDate}_${classCode}_${sectionCode}`;
+      data.golden_code = `${data.class}-${data.subject_code}-${data.examination_code}`;
   
       // Create ExamDetails
       const newExam = await ExamDetails.create(data, { transaction });
@@ -89,6 +141,7 @@ const registerExam = async (data) => {
       // Prepare question details for bulk insert
       const questionData = data.question_details.map(q => ({
         exam_detail_id: newExam.id,
+        golden_code:newExam.golden_code,
         question_number: q.question_number,
         question: q.question,
         answer: q.answer,
@@ -111,57 +164,55 @@ const registerExam = async (data) => {
     }
   };
 
-const studentListByClass = async (classId) => {
-    const classDetails = await Classes.findOne({ where: { id: classId, status: 1 } });
+const studentListByClass = async (classNumber) => {
+    const classDetails = await Classes.findOne({ where: { class: classNumber, status: 1 } });
     if (!classDetails) {
       throw new Error('Class Not Found');
     }
   
-    const userDetails = await sequelize.query(
+    const studentDetails = await sequelize.query(
       `
       SELECT 
         id,
-        CONCAT(name, '-', username) AS name
-      FROM users
+        CONCAT(name, ' (', student_id, ')') AS name,
+        student_id
+      FROM students
       WHERE status = :status 
         AND class = :class
-        AND section = :section and role='STUDENT'
       `,
       {
         replacements: {
           status: 1,
-          class: classDetails.class,
-          section: classDetails.section
+          class: classNumber
         },
         type: QueryTypes.SELECT
       }
     );
   
-    return userDetails;
+    return studentDetails;
 };
 
 const getExamCodeDetails = async () => {
   return  await ExamDetails.findAll({})
 };
 
-const getScheduledExamsDetails = async (examId) => {
+const getScheduledExamsDetails = async (examinationCode) => {
   const examScheduledDetails = await sequelize.query(
     `
     SELECT 
-      e.exam_name,
-      e.exam_id,
+      e.examination_code,
       e.class,
       e.exam_date,
-      e.subject,
+      e.subject_code,
       e.exam_code
     FROM exam_details e 
     WHERE e.status = :status 
-      AND e.exam_id = :examId
+      AND e.examination_code = :examinationCode
     `,
     {
       replacements: {
         status: 1,
-        examId: examId,
+        examinationCode: examinationCode,
       },
       type: QueryTypes.SELECT,
     }
@@ -191,4 +242,4 @@ const updateQuestionPapers = async (data) => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects };
