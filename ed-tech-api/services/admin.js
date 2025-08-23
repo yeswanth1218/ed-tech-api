@@ -1,4 +1,4 @@
-const { ExamName,Ruberics,Classes ,ExamDetails,QuestionPapers,User,Subject} = require('../models');
+const { ExamName,Ruberics,Classes ,ExamDetails,QuestionPapers,User,Subject,SubjectResults, Student} = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sequelize = require('../config/db');
@@ -14,20 +14,21 @@ const createExam = async (data) => {
   // Take first 2 letters of name
   const codePrefix = upperName.slice(0, 2);
 
-  // Format date as YY-MM-DD
+  // Format date as YYMMDD (no dashes)
   const now = new Date();
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
-  const datePart = `${yy}-${mm}-${dd}`;
+  const datePart = `${yy}${mm}${dd}`;
 
-  const examinationCode = `${codePrefix}-${datePart}`;
+  const examinationCode = `${codePrefix}_${datePart}`;
 
   await ExamName.create({
     name: upperName,
     examination_code: examinationCode
   });
 };
+
 
 
 const examList = async () => {
@@ -246,6 +247,18 @@ const updateQuestionPapers = async (data) => {
   await QuestionPapers.update({question_number:data.question_number,question:data.question,answer:data.answer,marks:data.marks,question_type:data.question_type,ruberics:data.ruberics},{where:{id:data.id}})
 };
 
+const getStudentSubjectResult = async (studentId,goldenCode) => {
+  const isValidStudent= await Student.findOne({where:{student_id:studentId}})
+  if(!isValidStudent){
+    throw new Error('Student not found');
+  }
+  const isGoldenCodeExist=await ExamDetails.findOne({where:{golden_code:goldenCode}})
+  if(!isGoldenCodeExist){
+    throw new Error('Invalid Golden Code');
+  }
+  const result= await SubjectResults.findOne({where:{student_id:studentId,golden_code:goldenCode}})
+  return result
+};
 
 
 
@@ -255,4 +268,4 @@ const updateQuestionPapers = async (data) => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult };

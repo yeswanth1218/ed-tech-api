@@ -24,7 +24,7 @@ const SubjectResults = sequelize.define('subject_results', {
     type: DataTypes.STRING(50),
     allowNull: false
   },
-  total_marks: {
+  max_possible_marks: { 
     type: DataTypes.INTEGER,
     allowNull: false
   },

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addExam,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode } = require('../controllers/admin');
+const { addExam,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult } = require('../controllers/admin');
 
 router.post('/add_exam_name', addExam);
 router.get('/exams', getExam);
@@ -15,6 +15,8 @@ router.get('/exam_codes', getExamCode);
 router.get('/scheduled_exam_details', getScheduledExams);
 router.get('/scheduled_question_papers', getScheduledQuestionPapers);
 router.post('/update_question_paper', updateQuestionPaper);
+router.get('/students_by_class', getStudentByClass);
+router.get('/student_result', getStudentResult);
 
 
 

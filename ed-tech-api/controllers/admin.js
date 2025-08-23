@@ -1,7 +1,7 @@
 
 
 const { examNameSchema ,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema} = require('../validations/admin');
-const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam}= require('../services/admin')
+const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult}= require('../services/admin')
 
 const addExam = async (req, res) => {
   const { error } = examNameSchema.validate(req.body);
@@ -190,6 +190,16 @@ const updateQuestionPaper = async (req, res) => {
   }
 };
 
+const getStudentResult = async (req, res) => {
+  try {
+    const studentId=req.query.student_id
+    const goldenCode=req.query.golden_code
+    const result = await getStudentSubjectResult(studentId,goldenCode);
+    res.status(200).json({ message: 'Student Result Fetched successfully', data: result });
+  } catch (err) {
+    res.status(400).json({ error: err.message }); // 400 so Postman shows error clearly
+  }
+};
 
 
 
@@ -206,4 +216,6 @@ const updateQuestionPaper = async (req, res) => {
 
 
 
-module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode};
+
+
+module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult};

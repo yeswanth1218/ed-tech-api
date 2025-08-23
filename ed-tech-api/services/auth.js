@@ -30,7 +30,6 @@ const login = async (username, password, res) => {
   };
 };
 
-
 const register = async (username, password, role, classNumber,name) => {
   const existingUser = await User.findOne({ where: { username } });
   if (existingUser) throw new Error("Username already exists");
