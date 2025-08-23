@@ -9,6 +9,9 @@ const QuestionPapers = require('./question_paper');
 const Evaluations = require('./evaluations');
 const Student = require('./students');
 const Subject = require('./subjects');
+const SubjectResults = require('./subject_results');
+
+
 
 
 
@@ -31,4 +34,4 @@ const initDb = async () => {
   }
 };
 
-module.exports = { initDb, User, ExamName,Ruberics,Classes,Sections,ExamDetails,QuestionPapers,Evaluations,Student,Subject };
+module.exports = { initDb, User, ExamName,Ruberics,Classes,Sections,ExamDetails,QuestionPapers,Evaluations,Student,Subject,SubjectResults };

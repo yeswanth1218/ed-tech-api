@@ -162,7 +162,20 @@ const registerExam = async (data) => {
       await transaction.rollback();
       throw error;
     }
-  };
+};
+
+const getGoldenCodeOfExam = async (examinationCode,classNumber,subjectCode) => {
+  try{
+    const examDetails= await ExamDetails.findOne({where:{examination_code:examinationCode,subject_code:subjectCode,class:classNumber}})
+    if(!examDetails){
+      throw new Error('Invalid Exam');
+    }
+    return examDetails.golden_code
+  }catch(err){
+
+  }
+};
+
 
 const studentListByClass = async (classNumber) => {
     const classDetails = await Classes.findOne({ where: { class: classNumber, status: 1 } });
@@ -204,7 +217,7 @@ const getScheduledExamsDetails = async (examinationCode) => {
       e.class,
       e.exam_date,
       e.subject_code,
-      e.exam_code
+      e.golden_code
     FROM exam_details e 
     WHERE e.status = :status 
       AND e.examination_code = :examinationCode
@@ -242,4 +255,4 @@ const updateQuestionPapers = async (data) => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam };
