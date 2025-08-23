@@ -16,7 +16,7 @@ const SubjectResults = sequelize.define('subject_results', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  subject: {
+  subject_code: {
     type: DataTypes.STRING(100),
     allowNull: false
   },
