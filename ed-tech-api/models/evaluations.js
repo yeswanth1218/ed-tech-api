@@ -15,6 +15,10 @@ const Evaluations = sequelize.define('evaluations', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  max_possible_marks: { 
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   question_number: {
     type: DataTypes.INTEGER,
     allowNull: false

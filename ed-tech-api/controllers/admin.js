@@ -1,7 +1,7 @@
 
 
-const { examNameSchema ,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema} = require('../validations/admin');
-const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult}= require('../services/admin')
+const { examNameSchema ,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema} = require('../validations/admin');
+const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults}= require('../services/admin')
 
 const addExam = async (req, res) => {
   const { error } = examNameSchema.validate(req.body);
@@ -167,8 +167,11 @@ const getScheduledExams = async (req, res) => {
 
 const getScheduledQuestionPapers = async (req, res) => {
   try {
-    const examDetailId=req.query.exam_detail_id
-    const examDetails = await getScheduledExamPapers(examDetailId);
+    const goldenCode=req.query.golden_code
+    if (!goldenCode) {
+      return res.status(400).json({ error: "goldenCode Not found" });
+    }
+    const examDetails = await getScheduledExamPapers(goldenCode);
     res.status(200).json({ message: 'Scheduled Question Paper Fetched successfully', data: examDetails });
   } catch (err) {
     res.status(400).json({ error: err.message }); // 400 so Postman shows error clearly
@@ -194,10 +197,60 @@ const getStudentResult = async (req, res) => {
   try {
     const studentId=req.query.student_id
     const goldenCode=req.query.golden_code
+    if (!goldenCode) {
+      return res.status(400).json({ error: "goldenCode Not found" });
+    }
+    if (!studentId) {
+      return res.status(400).json({ error: "studentId Not found" });
+    }
     const result = await getStudentSubjectResult(studentId,goldenCode);
     res.status(200).json({ message: 'Student Result Fetched successfully', data: result });
   } catch (err) {
     res.status(400).json({ error: err.message }); // 400 so Postman shows error clearly
+  }
+};
+
+const addQuestions = async (req, res) => {
+  const { error } = questionPaperAddSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  try {
+  console.log(`>>>>req.body${JSON.stringify(req.body)}`)
+
+    const questionDetails = await addQuestionPaper(req.body);
+
+    res.status(200).json({ message: 'Question Paper Created successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+const getEvaluationResults = async (req, res) => {
+  const goldenCode =req.query.golden_code
+  if (!goldenCode) {
+    return res.status(400).json({ error: "goldenCode Not found" });
+  }
+  try {
+    const evaluationResults = await getEvaluationResultsByGoldenCode(goldenCode);
+    res.status(200).json({ message: 'Evaluation Result Fetched successfully',evaluationResults });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
+
+const updateEvaluationResult = async (req, res) => {
+  const { error } = evaluationUpdateSchema.validate(req.body);
+  if (error) return res.status(400).json({ error: error.details[0].message });
+
+  try {
+     await updateEvaluationResults(req.body);
+    res.status(200).json({ message: 'Result Updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -217,5 +270,4 @@ const getStudentResult = async (req, res) => {
 
 
 
-
-module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult};
+module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult};

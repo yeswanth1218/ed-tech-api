@@ -1,4 +1,4 @@
-const { ExamName,Ruberics,Classes ,ExamDetails,QuestionPapers,User,Subject,SubjectResults, Student} = require('../models');
+const { ExamName,Ruberics,Classes ,ExamDetails,QuestionPapers,User,Subject,SubjectResults, Student, Evaluations} = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sequelize = require('../config/db');
@@ -173,7 +173,7 @@ const getGoldenCodeOfExam = async (examinationCode,classNumber,subjectCode) => {
     }
     return examDetails.golden_code
   }catch(err){
-
+    throw err;
   }
 };
 
@@ -235,8 +235,8 @@ const getScheduledExamsDetails = async (examinationCode) => {
   return examScheduledDetails;
 };
 
-const getScheduledExamPapers = async (examDetailId) => {
-  return  await QuestionPapers.findAll({where:{exam_detail_id:examDetailId,status:1}})
+const getScheduledExamPapers = async (goldenCode) => {
+  return  await QuestionPapers.findAll({where:{golden_code:goldenCode,status:1}})
 };
 
 const updateQuestionPapers = async (data) => {
@@ -260,6 +260,67 @@ const getStudentSubjectResult = async (studentId,goldenCode) => {
   return result
 };
 
+const addQuestionPaper = async (data) => {
+  try {
+    const {  golden_code, question_details } = data;
+
+    // ✅ Get the latest exam detail
+    const latestExamDetail = await ExamDetails.findOne({
+      where: { golden_code: golden_code },
+      order: [['id', 'DESC']]
+    });
+
+    if (!latestExamDetail) {
+      throw new Error('Golden code not found');
+    }
+
+    // ✅ Find the last question_number for this exam_detail_id
+    const lastQuestion = await QuestionPapers.findOne({
+      where: { exam_detail_id: latestExamDetail.id },
+      order: [['question_number', 'DESC']]
+    });
+
+    let startNumber = lastQuestion ? lastQuestion.question_number + 1 : 1;
+
+    // ✅ Assign incremental question_number automatically
+    const rows = question_details.map((q, index) => ({
+      exam_detail_id: latestExamDetail.id, // use latest exam_detail_id
+      golden_code,
+      question_number: startNumber + index,
+      question: q.question,
+      answer: q.answer,
+      marks: q.marks,
+      question_type: q.question_type,
+      ruberics: q.ruberics || null
+    }));
+
+    // ✅ Bulk insert
+    await QuestionPapers.bulkCreate(rows);
+
+    return { success: true, message: "Question paper added successfully" };
+
+  } catch (error) {
+    console.error("Error adding question paper:", error);
+    throw error;
+  }
+};
+
+const getEvaluationResultsByGoldenCode =async(goldenCode)=>{
+  try{
+    return await Evaluations.findAll({where:{golden_code:goldenCode,status:1}})
+  }catch(err){
+    throw err;
+  }
+}
+
+
+const updateEvaluationResults = async (data) => {
+  const evaluation= await Evaluations.findOne({where:{id:data.id}})
+  if(!evaluation){
+    throw new Error('Invalid Id');
+  }
+  await Evaluations.update({marks_obtained:data.marks_obtained,reason:data.reason,strengths:data.strengths,areas_for_improvement:data.areas_for_improvement},{where:{id:data.id}})
+};
 
 
   
@@ -268,4 +329,4 @@ const getStudentSubjectResult = async (studentId,goldenCode) => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults };

@@ -37,5 +37,25 @@ const questionPaperUpdateSchema = Joi.object({
   ruberics: Joi.string().optional()
 });
 
+const questionPaperAddSchema = Joi.object({
+  golden_code: Joi.string().optional(),
+  question_details: Joi.array().items(
+    Joi.object({
+      question: Joi.string().required(),
+      answer: Joi.string().required(),
+      marks: Joi.number().precision(2).required(),
+      question_type: Joi.string().required(),
+      ruberics: Joi.string().allow('').optional()
+    })
+  ).required()
+});
 
-module.exports = { examNameSchema,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema };
+const evaluationUpdateSchema = Joi.object({
+  id: Joi.number().required(),
+  marks_obtained: Joi.number().optional(),
+  reason: Joi.string().optional(),
+  strengths: Joi.string().optional(),
+  areas_for_improvement: Joi.number().optional()
+});
+
+module.exports = { examNameSchema,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema };
