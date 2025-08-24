@@ -8,7 +8,7 @@ const Evaluations = sequelize.define('evaluations', {
     primaryKey: true
   },
   student_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(50),
     allowNull: false
   },
   marks_obtained: {
