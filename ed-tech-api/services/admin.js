@@ -275,18 +275,18 @@ const addQuestionPaper = async (data) => {
     }
 
     // ✅ Find the last question_number for this exam_detail_id
-    const lastQuestion = await QuestionPapers.findOne({
-      where: { exam_detail_id: latestExamDetail.id },
-      order: [['question_number', 'DESC']]
-    });
+    // const lastQuestion = await QuestionPapers.findOne({
+    //   where: { exam_detail_id: latestExamDetail.id },
+    //   order: [['question_number', 'DESC']]
+    // });
 
-    let startNumber = lastQuestion ? lastQuestion.question_number + 1 : 1;
+    // let startNumber = lastQuestion ? lastQuestion.question_number + 1 : 1;
 
     // ✅ Assign incremental question_number automatically
     const rows = question_details.map((q, index) => ({
       exam_detail_id: latestExamDetail.id, // use latest exam_detail_id
       golden_code,
-      question_number: startNumber + index,
+      question_number: q.question_number,
       question: q.question,
       answer: q.answer,
       marks: q.marks,

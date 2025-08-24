@@ -41,6 +41,7 @@ const questionPaperAddSchema = Joi.object({
   golden_code: Joi.string().optional(),
   question_details: Joi.array().items(
     Joi.object({
+      question_number: Joi.number().required(),
       question: Joi.string().required(),
       answer: Joi.string().required(),
       marks: Joi.number().precision(2).required(),
