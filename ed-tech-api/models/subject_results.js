@@ -9,7 +9,7 @@ const SubjectResults = sequelize.define('subject_results', {
     primaryKey: true
   },
   student_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(50),
     allowNull: false
   },
   class: {
