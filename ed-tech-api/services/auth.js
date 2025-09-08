@@ -12,17 +12,11 @@ const login = async (username, password, res) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error('Invalid password');
 
-  const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user.id, role: user.role ,username:user.username}, process.env.JWT_SECRET, {
     expiresIn: '1h',
   });
 
-  // Set token in cookie
-  res.cookie('token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 60 * 60 * 1000,
-  });
+
 
   return {
     message: 'Login successful',
