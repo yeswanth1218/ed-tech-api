@@ -7,9 +7,18 @@ require('dotenv').config();
 
 const app = express();
 
-// ✅ Allow cross-origin requests with credentials (Development mode - allow all origins)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://beyondgrades.ai"
+];
 app.use(cors({
-  origin: true, // Allow all origins for development
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 

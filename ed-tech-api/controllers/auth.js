@@ -2,7 +2,7 @@ const { registerSchema, loginSchema ,logoutSchema} = require('../validations/aut
 const { register, login } = require('../services/auth');
 const {checkAndSetJobForCompletion,removeKeyAfterCompletion,checkAndSetRedishKeyForLogin} =require('../config/common')
 const CryptoJS =require('crypto-js')
-const redis_API_Request_Checker =require('../config/apiRedis')
+// const redis_API_Request_Checker =require('../config/apiRedis')
 
 
 
