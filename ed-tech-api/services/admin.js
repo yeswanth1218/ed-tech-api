@@ -165,13 +165,18 @@ const registerExam = async (data) => {
     }
 };
 
-const getGoldenCodeOfExam = async (examinationCode,classNumber,subjectCode) => {
+const getGoldenCodeOfExam = async (examinationCode,classNumber,subjectCode,studentId) => {
   try{
     const examDetails= await ExamDetails.findOne({where:{examination_code:examinationCode,subject_code:subjectCode,class:classNumber}})
     if(!examDetails){
       throw new Error('Invalid Exam');
     }
-    return examDetails.golden_code
+    const studentDetails= await Student.findOne({where:{student_id:studentId}})
+    if(!studentDetails){
+      throw new Error('student Not found');
+    }
+    const subjectResults= await SubjectResults.findOne({where:{student_id:studentId,subject_code:subjectCode,class:classNumber,golden_code:examDetails.golden_code}})
+    return {golden_code:examDetails.golden_code,is_evaluation_completed:subjectResults ? 1 : 0}
   }catch(err){
     throw err;
   }

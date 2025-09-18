@@ -105,6 +105,8 @@ const getGoldenCode = async (req, res) => {
   const examinationCode=req.query.examination_code
   const classNumber=req.query.class
   const subjectCode=req.query.subject_code
+  const studentId=req.query.student_id
+
   if (!examinationCode) {
     return res.status(400).json({ error: "examinationCode Not found" });
   }
@@ -114,9 +116,13 @@ const getGoldenCode = async (req, res) => {
   if (!subjectCode) {
     return res.status(400).json({ error: "subjectCode Not found" });
   }
+  if (!studentId) {
+    return res.status(400).json({ error: "studentId Not found" });
+  }
+  
   try {
 
-    const code = await getGoldenCodeOfExam(examinationCode,classNumber,subjectCode);
+    const code = await getGoldenCodeOfExam(examinationCode,classNumber,subjectCode,studentId);
 
     res.status(200).json({ message: 'Exam scheduled successfully', data: code });
   } catch (err) {
