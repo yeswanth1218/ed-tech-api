@@ -5,6 +5,8 @@ const sequelize = require('../config/db');
 const {QueryTypes}=require('sequelize')
 const { Op, fn, col, where } = require('sequelize');
 const moment =require('moment')
+const nodemailer = require("nodemailer");
+
 require('dotenv').config();
 
 const createExam = async (data) => {
@@ -327,6 +329,70 @@ const updateEvaluationResults = async (data) => {
   await Evaluations.update({marks_obtained:data.marks_obtained,reason:data.reason,strengths:data.strengths,areas_for_improvement:data.areas_for_improvement},{where:{id:data.id}})
 };
 
+const saveUserInformation = async (data) => {
+  try {
+    // Ensure all necessary environment variables are set
+    // if (!process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.SMTP_HOST || !process.env.SMTP_PORT) {
+    //   console.error("Email environment variables are not set correctly.");
+    //   return { success: false, error: "Email configuration error." };
+    // }
+
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com', // e.g., 'smtp.gmail.com'
+      port: 465, // e.g., 465 for SSL, 587 for TLS
+      secure: 'true', // Use 'true' if using port 465 (SSL), false for 587 (TLS)
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD // This should be your App Password for Gmail
+      },
+      // tls: {
+      //   // If you encounter certificate errors, you might need to disable strict TLS
+      //   // rejectUnauthorized: false
+      // }
+    });
+
+    // Verify the transporter configuration
+    await transporter.verify();
+    console.log("Nodemailer transporter is ready to send emails.");
+
+    const htmlBody = `
+      <h3>New User Info</h3>
+      <ul>
+        <li><strong>First Name:</strong> ${data.first_name || 'N/A'}</li>
+        <li><strong>Last Name:</strong> ${data.last_name || 'N/A'}</li>
+        <li><strong>Email:</strong> ${data.email || 'N/A'}</li>
+        <li><strong>Institution:</strong> ${data.institution || 'N/A'}</li>
+        <li><strong>Message:</strong> ${data.message || 'N/A'}</li>
+      </ul>
+    `;
+
+    const mailOptions = {
+      from: `Beyond Grades <${process.env.EMAIL_USERNAME}>`, // Sender address
+      to: "admin@beyondgrades.ai", // Recipient address (can be an array for multiple recipients)
+      subject: "New User Information from Beyond Grades", // Subject line
+      html: htmlBody, // HTML body
+      // text: `User Info:\nFirst Name: ${data.first_name}\nLast Name: ${data.last_name}\nEmail: ${data.email}\nInstitution: ${data.institution}\nMessage: ${data.message}` // Plain text body (optional)
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Message sent: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+
+  } catch (error) {
+    console.error("Email sending error:", error);
+    // Provide more specific error feedback if possible
+    if (error.code === 'EAUTH') {
+      return { success: false, error: "Authentication failed. Please check your email username and password (or App Password)." };
+    } else if (error.code === 'ENOTFOUND') {
+      return { success: false, error: `SMTP server not found. Please check your SMTP host and port settings.` };
+    } else {
+      return { success: false, error: error.message };
+    }
+  }
+};
+
+
+
 
   
 
@@ -334,4 +400,4 @@ const updateEvaluationResults = async (data) => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation };

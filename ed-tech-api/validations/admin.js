@@ -59,4 +59,12 @@ const evaluationUpdateSchema = Joi.object({
   areas_for_improvement: Joi.number().optional()
 });
 
-module.exports = { examNameSchema,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema };
+const userInfoSchema = Joi.object({
+  first_name: Joi.string().required(),
+  last_name: Joi.string().required(),
+  email: Joi.string().required(),
+  institution: Joi.string().required(),
+  message: Joi.string().required()
+});
+
+module.exports = { examNameSchema,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema,userInfoSchema };

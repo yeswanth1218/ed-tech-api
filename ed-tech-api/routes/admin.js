@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addExam,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult } = require('../controllers/admin');
+const { addExam,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult,saveUserInfo } = require('../controllers/admin');
 const auth =require('../middleware/auth/authJwt')
 router.post('/add_exam_name',[auth.verifyToken], addExam);
 router.get('/exams',[auth.verifyToken], getExam);
@@ -20,6 +20,8 @@ router.get('/student_result',[auth.verifyToken], getStudentResult);
 router.post('/add_questions', [auth.verifyToken],addQuestions);
 router.get('/evaluation_results',[auth.verifyToken], getEvaluationResults);
 router.post('/update_evaluation_result',[auth.verifyToken], updateEvaluationResult);
+router.post('/user_message', saveUserInfo);
+
 
 
 
