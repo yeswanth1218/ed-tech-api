@@ -1,7 +1,7 @@
 
 
 const { examNameSchema ,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema,userInfoSchema} = require('../validations/admin');
-const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation}= require('../services/admin')
+const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation,getAllUsers}= require('../services/admin')
 
 const addExam = async (req, res) => {
   const { error } = examNameSchema.validate(req.body);
@@ -265,8 +265,26 @@ const saveUserInfo = async (req, res) => {
   if (error) return res.status(400).json({ error: error.details[0].message });
 
   try {
-     await saveUserInformation(req.body);
-    res.status(200).json({ message: 'user Info submitted successfully' });
+    console.log(`>>>>req.body${JSON.stringify(req.body)}`);
+
+    const result = await saveUserInformation(req.body);
+
+    res.status(200).json({ message: 'User information saved successfully', data: result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getUsers = async (req, res) => {
+  try {
+    console.log(`>>>>Getting all users`);
+
+    const users = await getAllUsers();
+
+    res.status(200).json({ 
+      message: 'Users fetched successfully', 
+      data: users 
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -290,4 +308,4 @@ const saveUserInfo = async (req, res) => {
 
 
 
-module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult,saveUserInfo};
+module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult,saveUserInfo,getUsers};

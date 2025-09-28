@@ -329,6 +329,15 @@ const updateEvaluationResults = async (data) => {
   await Evaluations.update({marks_obtained:data.marks_obtained,reason:data.reason,strengths:data.strengths,areas_for_improvement:data.areas_for_improvement},{where:{id:data.id}})
 };
 
+const getAllUsers = async () => {
+  return await User.findAll({
+    attributes: ['name', 'status', 'role'],
+    where: {
+      status: 1 // Only get active users
+    }
+  });
+};
+
 const saveUserInformation = async (data) => {
   try {
     // Ensure all necessary environment variables are set
@@ -400,4 +409,4 @@ const saveUserInformation = async (data) => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation,getAllUsers };
