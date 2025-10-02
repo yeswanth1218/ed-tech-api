@@ -6,6 +6,7 @@ const {QueryTypes}=require('sequelize')
 const { Op, fn, col, where } = require('sequelize');
 const moment =require('moment')
 const nodemailer = require("nodemailer");
+const Paths =require('path')
 
 require('dotenv').config();
 
@@ -329,67 +330,180 @@ const updateEvaluationResults = async (data) => {
   await Evaluations.update({marks_obtained:data.marks_obtained,reason:data.reason,strengths:data.strengths,areas_for_improvement:data.areas_for_improvement},{where:{id:data.id}})
 };
 
-const saveUserInformation = async (data) => {
+// const saveUserInformation = async (data) => {
+//   try {
+//     // Ensure all necessary environment variables are set
+//     // if (!process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.SMTP_HOST || !process.env.SMTP_PORT) {
+//     //   console.error("Email environment variables are not set correctly.");
+//     //   return { success: false, error: "Email configuration error." };
+//     // }
+
+//     const transporter = nodemailer.createTransport({
+//       host: 'smtp.gmail.com', // e.g., 'smtp.gmail.com'
+//       port: 465, // e.g., 465 for SSL, 587 for TLS
+//       secure: 'true', // Use 'true' if using port 465 (SSL), false for 587 (TLS)
+//       auth: {
+//         user: process.env.EMAIL_USERNAME,
+//         pass: process.env.EMAIL_PASSWORD // This should be your App Password for Gmail
+//       },
+//       // tls: {
+//       //   // If you encounter certificate errors, you might need to disable strict TLS
+//       //   // rejectUnauthorized: false
+//       // }
+//     });
+
+//     // Verify the transporter configuration
+//     await transporter.verify();
+//     console.log("Nodemailer transporter is ready to send emails.");
+
+//     const htmlBody = `
+//       <h3>New User Info</h3>
+//       <ul>
+//         <li><strong>First Name:</strong> ${data.first_name || 'N/A'}</li>
+//         <li><strong>Last Name:</strong> ${data.last_name || 'N/A'}</li>
+//         <li><strong>Email:</strong> ${data.email || 'N/A'}</li>
+//         <li><strong>Institution:</strong> ${data.institution || 'N/A'}</li>
+//         <li><strong>Message:</strong> ${data.message || 'N/A'}</li>
+//       </ul>
+//     `;
+
+//     const mailOptions = {
+//       from: `Beyond Grades <${process.env.EMAIL_USERNAME}>`, // Sender address
+//       to: "ravistartup1998@gmail.com", // Recipient address (can be an array for multiple recipients)
+//       subject: "New User Information from Beyond Grades", // Subject line
+//       html: htmlBody, // HTML body
+//       // text: `User Info:\nFirst Name: ${data.first_name}\nLast Name: ${data.last_name}\nEmail: ${data.email}\nInstitution: ${data.institution}\nMessage: ${data.message}` // Plain text body (optional)
+//     };
+
+//     const info = await transporter.sendMail(mailOptions);
+//     console.log(`Message sent: ${info.messageId}`);
+//     return { success: true, messageId: info.messageId };
+
+//   } catch (error) {
+//     console.error("Email sending error:", error);
+//     // Provide more specific error feedback if possible
+//     if (error.code === 'EAUTH') {
+//       return { success: false, error: "Authentication failed. Please check your email username and password (or App Password)." };
+//     } else if (error.code === 'ENOTFOUND') {
+//       return { success: false, error: `SMTP server not found. Please check your SMTP host and port settings.` };
+//     } else {
+//       return { success: false, error: error.message };
+//     }
+//   }
+// };
+
+
+
+
+
+const saveUserInformation = async () => {
   try {
-    // Ensure all necessary environment variables are set
-    // if (!process.env.EMAIL_USERNAME || !process.env.EMAIL_PASSWORD || !process.env.SMTP_HOST || !process.env.SMTP_PORT) {
-    //   console.error("Email environment variables are not set correctly.");
-    //   return { success: false, error: "Email configuration error." };
-    // }
+    console.log(">>>> preparing pitch email...");
 
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com', // e.g., 'smtp.gmail.com'
-      port: 465, // e.g., 465 for SSL, 587 for TLS
-      secure: 'true', // Use 'true' if using port 465 (SSL), false for 587 (TLS)
+      host: "smtp.hostinger.com",
+      port: 465,
+      secure: true, // true for SSL
       auth: {
         user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD // This should be your App Password for Gmail
+        pass: process.env.EMAIL_PASSWORD,
       },
-      // tls: {
-      //   // If you encounter certificate errors, you might need to disable strict TLS
-      //   // rejectUnauthorized: false
-      // }
+      logger: true,
+      debug: true,
     });
 
-    // Verify the transporter configuration
     await transporter.verify();
-    console.log("Nodemailer transporter is ready to send emails.");
+    console.log("✅ Transporter verified — ready to send");
 
-    const htmlBody = `
-      <h3>New User Info</h3>
-      <ul>
-        <li><strong>First Name:</strong> ${data.first_name || 'N/A'}</li>
-        <li><strong>Last Name:</strong> ${data.last_name || 'N/A'}</li>
-        <li><strong>Email:</strong> ${data.email || 'N/A'}</li>
-        <li><strong>Institution:</strong> ${data.institution || 'N/A'}</li>
-        <li><strong>Message:</strong> ${data.message || 'N/A'}</li>
-      </ul>
+    // absolute path to your PDF in services folder
+    const pdfPath = Paths.join(process.cwd(), "services", "AI-Powered Evaluation.pdf");
+
+    const subject = "Seeking for an appointment to pitch our Innovation";
+
+    const messageBody = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+        <p>Hello there,</p>
+
+        <p>My name is <strong>Yeswanth Reddy</strong>. Myself and a couple of AI Researchers from II FDRI have been focused on tackling few of the biggest challenges in the education industry today:</p>
+
+        <ul>
+          <li>Immense and time-consuming burden of manual evaluation of answer sheets.</li>
+          <li>Detecting the patterns of the students about their strengths and weaknesses to the intricate level and thereby helping them to guide accordingly.</li>
+        </ul>
+
+        <p>We’ve developed a first of its kind <strong>AI Powered solution</strong> to address these issues with utmost efficiency and accuracy. This application could be the next big thing in ed-tech space for all the right reasons.</p>
+
+        <p>Although we built the product, end of the day we are engineers and not teachers. That’s precisely why we are seeking for an appointment with you to showcase what we’ve built and have your perspective on this.</p>
+
+        <p>We kindly request you to give us some time and join this journey and be the Pioneer school that introduced this revolutionary AI tool into the ed-tech space.</p>
+
+        <p>We look forward to hearing from you soon.</p>
+
+        <p>Regards,<br/>
+        <strong>Yeswanth Reddy P.</strong><br/>
+        Founder and CEO<br/>
+        beyondgrades.ai</p>
+      </div>
     `;
 
     const mailOptions = {
-      from: `Beyond Grades <${process.env.EMAIL_USERNAME}>`, // Sender address
-      to: "admin@beyondgrades.ai", // Recipient address (can be an array for multiple recipients)
-      subject: "New User Information from Beyond Grades", // Subject line
-      html: htmlBody, // HTML body
-      // text: `User Info:\nFirst Name: ${data.first_name}\nLast Name: ${data.last_name}\nEmail: ${data.email}\nInstitution: ${data.institution}\nMessage: ${data.message}` // Plain text body (optional)
+      from: `${process.env.FROM_NAME || "Beyond Grades"} <${process.env.EMAIL_USERNAME}>`,
+      to: [
+        "yeswanthpellakuru18@gmail.com",
+        "ravikumarpatel601@gmail.com",
+        "ravistartup1998@gmail.com",
+        "ravikumarpatela2@gmail.com",
+        "rozgarbandhu@gmail.com"
+      ],
+      subject,
+      html: messageBody,
+      text: `
+Hello there,
+
+My name is Yeswanth Reddy. Myself and a couple of AI Researchers from II FDRI have been focused on tackling few of the biggest challenges in education industry today:
+
+- Immense and time-consuming burden of manual evaluation of answer sheets.
+- Detecting the patterns of the students about their strengths and weaknesses.
+
+We’ve developed a first of its kind AI Powered solution to address these issues with utmost efficiency and accuracy. This application could be the next big thing in ed-tech space.
+
+Although we built the product, we are engineers and not teachers. That’s why we are seeking an appointment with you to showcase what we’ve built.
+
+We kindly request you to give us some time and join this journey and be the Pioneer school that introduced this revolutionary AI tool into the ed-tech space.
+
+We look forward to hearing from you soon.
+
+Regards,
+Yeswanth Reddy P.
+Founder and CEO
+beyondgrades.ai
+      `,
+      attachments: [
+        {
+          filename: "AI-Powered Evaluation.pdf",
+          path: pdfPath,
+          contentType: "application/pdf",
+        },
+      ],
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Message sent: ${info.messageId}`);
-    return { success: true, messageId: info.messageId };
+    console.log("📩 Pitch email sent:", info.messageId);
 
+    return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error("Email sending error:", error);
-    // Provide more specific error feedback if possible
-    if (error.code === 'EAUTH') {
-      return { success: false, error: "Authentication failed. Please check your email username and password (or App Password)." };
-    } else if (error.code === 'ENOTFOUND') {
-      return { success: false, error: `SMTP server not found. Please check your SMTP host and port settings.` };
-    } else {
-      return { success: false, error: error.message };
-    }
+    console.error("❌ Email sending error:", error);
+    return { success: false, error: error.message || String(error) };
   }
 };
+
+
+
+
+
+
+
+
 
 
 
