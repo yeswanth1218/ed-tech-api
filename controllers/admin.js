@@ -234,11 +234,17 @@ const addQuestions = async (req, res) => {
 
 const getEvaluationResults = async (req, res) => {
   const goldenCode =req.query.golden_code
+  const studentId =req.query.student_id
+
   if (!goldenCode) {
     return res.status(400).json({ error: "goldenCode Not found" });
   }
+  if (!studentId) {
+    return res.status(400).json({ error: "studentId Not found" });
+  }
+  
   try {
-    const evaluationResults = await getEvaluationResultsByGoldenCode(goldenCode);
+    const evaluationResults = await getEvaluationResultsByGoldenCode(goldenCode,studentId);
     res.status(200).json({ message: 'Evaluation Result Fetched successfully',evaluationResults });
   } catch (err) {
     res.status(500).json({ error: err.message });

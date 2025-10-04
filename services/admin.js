@@ -312,9 +312,10 @@ const addQuestionPaper = async (data) => {
   }
 };
 
-const getEvaluationResultsByGoldenCode =async(goldenCode)=>{
+const getEvaluationResultsByGoldenCode =async(goldenCode,studentId)=>{
   try{
-    return await Evaluations.findAll({where:{golden_code:goldenCode,status:1}})
+    const data= await Evaluations.findAll({where:{golden_code:goldenCode,status:1,student_id:studentId}})
+    return data
   }catch(err){
     throw err;
   }
