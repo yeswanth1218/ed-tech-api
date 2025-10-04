@@ -11,8 +11,19 @@ const login = async (username, password, res) => {
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error('Invalid password');
+  let data={id: user.id, role: user.role ,username:user.username,student_id:'',class:''}
 
-  const token = jwt.sign({ id: user.id, role: user.role ,username:user.username}, process.env.JWT_SECRET, {
+  if(user.role==="STUDENT"){
+    const studentDetails = await Student.findOne({ where: { user_id:user.id } });
+    if(!studentDetails){
+      throw new Error('User not found');
+    }
+    data={...data,student_id:studentDetails.student_id,class:studentDetails.class}
+  }
+
+
+
+  const token = jwt.sign(data, process.env.JWT_SECRET, {
     expiresIn: '5h',
   });
 
@@ -20,7 +31,7 @@ const login = async (username, password, res) => {
 
   return {
     message: 'Login successful',
-    user: { id: user.id, username: user.username, role: user.role ,token:token},
+    user: { ...data ,token:token},
   };
 };
 

@@ -51,7 +51,32 @@ const Evaluations = sequelize.define('evaluations', {
     type: DataTypes.SMALLINT, // PostgreSQL: SMALLINT
     allowNull: false,
     defaultValue: 1
-  }
+  },
+  error_type: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  conceptual: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue:0
+  },
+  memory: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue:0
+  },
+  carelessness: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue:0
+  },
+  calculation: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue:0
+  },
+
 }, {
   tableName: 'evaluations',
   timestamps: true, // Sequelize will use created_at & updated_at

@@ -67,4 +67,9 @@ const userInfoSchema = Joi.object({
   message: Joi.string().required()
 });
 
-module.exports = { examNameSchema,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema,userInfoSchema };
+const evaluationSchema = Joi.object({
+  examination_code: Joi.string().required(),
+  subject_code: Joi.string().required()
+});
+
+module.exports = { examNameSchema,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema,userInfoSchema,evaluationSchema };
