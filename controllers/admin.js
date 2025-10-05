@@ -1,7 +1,7 @@
 
 
 const { examNameSchema ,rubericsNameSchema,createExamSchema,questionPaperUpdateSchema,questionPaperAddSchema,evaluationUpdateSchema,userInfoSchema} = require('../validations/admin');
-const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation,getAllUsers}= require('../services/admin')
+const {createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation,getAllUsers,deleteQuestionPaper,deleteEvaluation}= require('../services/admin')
 
 const addExam = async (req, res) => {
   const { error } = examNameSchema.validate(req.body);
@@ -296,6 +296,40 @@ const getUsers = async (req, res) => {
   }
 };
 
+const deleteQuestion = async (req, res) => {
+  const questionId =req.query.question_id
+
+  if (!questionId) {
+    return res.status(400).json({ error: "questionId Not found" });
+  }
+  
+  try {
+    const data = await deleteQuestionPaper(questionId);
+    res.status(200).json({ message: 'Question Deleted successfully',data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteEvaluationStudentWise = async (req, res) => {
+  const goldenCode =req.query.golden_code
+  const studentId =req.query.student_id
+
+
+  if (!goldenCode) {
+    return res.status(400).json({ error: "goldenCode Not found" });
+  }
+  if (!studentId) {
+    return res.status(400).json({ error: "studentId Not found" });
+  }
+  
+  try {
+    const data = await deleteEvaluation(goldenCode,studentId);
+    res.status(200).json({ message: 'Question Deleted successfully',data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 
 
@@ -314,4 +348,8 @@ const getUsers = async (req, res) => {
 
 
 
-module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult,saveUserInfo,getUsers};
+
+
+
+
+module.exports = { addExam ,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult,saveUserInfo,getUsers,deleteQuestion,deleteEvaluationStudentWise};

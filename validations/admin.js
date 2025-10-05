@@ -34,7 +34,7 @@ const questionPaperUpdateSchema = Joi.object({
   answer: Joi.string().optional(),
   marks: Joi.number().optional(),
   question_type: Joi.string().optional(),
-  ruberics: Joi.string().optional()
+  ruberics: Joi.string().optional().allow(null,'')
 });
 
 const questionPaperAddSchema = Joi.object({

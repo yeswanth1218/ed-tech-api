@@ -177,7 +177,7 @@ const getGoldenCodeOfExam = async (examinationCode,classNumber,subjectCode,stude
     if(!studentDetails){
       throw new Error('student Not found');
     }
-    const subjectResults= await SubjectResults.findOne({where:{student_id:studentId,subject_code:subjectCode,class:classNumber,golden_code:examDetails.golden_code}})
+    const subjectResults= await SubjectResults.findOne({where:{student_id:studentId,subject_code:subjectCode,class:classNumber,golden_code:examDetails.golden_code,status:1}})
     return {golden_code:examDetails.golden_code,is_evaluation_completed:subjectResults ? 1 : 0}
   }catch(err){
     throw err;
@@ -247,7 +247,7 @@ const getScheduledExamPapers = async (goldenCode) => {
 };
 
 const updateQuestionPapers = async (data) => {
-  const questionPaper= await QuestionPapers.findOne({where:{id:data.id}})
+  const questionPaper= await QuestionPapers.findOne({where:{id:data.id,status:1}})
   if(!questionPaper){
     throw new Error('Invalid Question');
   }
@@ -259,11 +259,11 @@ const getStudentSubjectResult = async (studentId,goldenCode) => {
   if(!isValidStudent){
     throw new Error('Student not found');
   }
-  const isGoldenCodeExist=await ExamDetails.findOne({where:{golden_code:goldenCode}})
+  const isGoldenCodeExist=await ExamDetails.findOne({where:{golden_code:goldenCode,status:1}})
   if(!isGoldenCodeExist){
     throw new Error('Invalid Golden Code');
   }
-  const result= await SubjectResults.findOne({where:{student_id:studentId,golden_code:goldenCode}})
+  const result= await SubjectResults.findOne({where:{student_id:studentId,golden_code:goldenCode,status:1}})
   return result
 };
 
@@ -401,6 +401,71 @@ const saveUserInformation = async (data) => {
   }
 };
 
+const deleteQuestionPaper = async (questionId) => {
+  try{
+    const questionPaper= await QuestionPapers.findOne({where:{id:questionId,status:1}})
+    if(!questionPaper){
+      throw new Error('Invalid Question Id');
+    }
+    await QuestionPapers.update({status:0},{where:{id:questionId}})
+  }catch(err){
+
+  }
+};
+
+// assuming you have access to your Sequelize instance as `sequelize`
+// and your models: Evaluations, SubjectResults
+
+const deleteEvaluation = async (goldenCode, studentId) => {
+  const t = await sequelize.transaction();
+  try {
+    // Lock the row so concurrent requests don't race past each other
+    const evaluationResult = await Evaluations.findOne({
+      where: { golden_code: goldenCode, status: 1, student_id: studentId },
+      transaction: t,
+      lock: t.LOCK.UPDATE, // FOR UPDATE
+    });
+
+    if (!evaluationResult) {
+      throw new Error("No active evaluation found");
+    }
+
+    // Do both updates inside the same transaction
+    const [evalAffected] = await Evaluations.update(
+      { status: 0 },
+      {
+        where: { golden_code: goldenCode, student_id: studentId, status: 1 },
+        transaction: t,
+      }
+    );
+
+    const [subjAffected] = await SubjectResults.update(
+      { status: 0 },
+      {
+        where: { golden_code: goldenCode, student_id: studentId, status: 1 },
+        transaction: t,
+      }
+    );
+
+    // If either update didn't touch any row, rollback
+    if (evalAffected < 1 || subjAffected < 1) {
+      throw new Error("Failed to update all related records; rolling back");
+    }
+
+    await t.commit();
+    return { ok: true, evalAffected, subjAffected };
+  } catch (err) {
+    await t.rollback();
+    // Optional: log error
+    // console.error("deleteEvaluation error:", err);
+    throw err; // or return { ok:false, error: err.message }
+  }
+};
+
+
+
+
+
 
 
 
@@ -410,4 +475,4 @@ const saveUserInformation = async (data) => {
 
 
 
-module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation,getAllUsers };
+module.exports = { createExam,examList,createRuberics,rubericsList,classesList,registerExam,studentListByClass,getExamCodeDetails,getScheduledExamsDetails,getScheduledExamPapers,updateQuestionPapers,getAllSubjects,getGoldenCodeOfExam,getStudentSubjectResult,addQuestionPaper,getEvaluationResultsByGoldenCode,updateEvaluationResults,saveUserInformation,getAllUsers,deleteQuestionPaper,deleteEvaluation };

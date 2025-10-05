@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addExam,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult,saveUserInfo,getUsers } = require('../controllers/admin');
+const { addExam,getExam,addRuberics,getRuberics,getClasses,createExamDetails,getStudentByClass,getExamCode,getScheduledExams,getScheduledQuestionPapers,updateQuestionPaper,getSubjects,getGoldenCode,getStudentResult,addQuestions,getEvaluationResults,updateEvaluationResult,saveUserInfo,getUsers ,deleteQuestion,deleteEvaluationStudentWise} = require('../controllers/admin');
 const auth =require('../middleware/auth/authJwt')
 router.post('/add_exam_name',[auth.verifyToken], addExam);
 router.get('/exams',[auth.verifyToken], getExam);
@@ -22,6 +22,9 @@ router.get('/evaluation_results',[auth.verifyToken], getEvaluationResults);
 router.post('/update_evaluation_result',[auth.verifyToken], updateEvaluationResult);
 router.post('/user_message', saveUserInfo);
 router.get('/get_users', getUsers);
+router.post('/delete_question', deleteQuestion);
+router.post('/delete_evaluation_student_wise', deleteEvaluationStudentWise);
+
 
 
 
